@@ -101,6 +101,48 @@ h1 {
   justify-content: center;
 }
 
+.mode-bar {
+  display: flex;
+  justify-content: center;
+  margin-bottom: 16px;
+}
+
+.mode-btn {
+  border: none;
+  width: 100%;
+  max-width: 220px;
+  padding: 14px;
+  border-radius: 12px;
+  font-size: 18px;
+  font-weight: 700;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  transition: all 0.15s;
+  -webkit-tap-highlight-color: transparent;
+}
+
+/* 翻开模式 */
+.mode-btn {
+  background: #4895ef;
+  color: #fff;
+}
+
+/* 插旗模式 */
+.mode-btn.flag-mode {
+  background: #ef233c;
+}
+
+.mode-btn:active {
+  transform: scale(0.97);
+}
+
+.mode-icon {
+  font-size: 22px;
+}
+
 .board {
   display: grid;
   gap: 3px;
@@ -123,6 +165,10 @@ h1 {
   align-items: center;
   justify-content: center;
   user-select: none;
+  -webkit-user-select: none;
+  -webkit-tap-highlight-color: transparent;
+  -webkit-touch-callout: none;
+  touch-action: manipulation;
   transition: background 0.1s;
 }
 
@@ -159,3 +205,88 @@ h1 {
   font-size: 13px;
   color: #8d99ae;
 }
+
+/* 特效画布:覆盖全屏,不拦截点击 */
+#fx-canvas {
+  position: fixed;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+  z-index: 50;
+}
+
+/* 结算遮罩 */
+.overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(20, 21, 35, 0.72);
+  display: none;
+  align-items: center;
+  justify-content: center;
+  z-index: 60;
+  -webkit-backdrop-filter: blur(4px);
+  backdrop-filter: blur(4px);
+}
+
+.overlay.show {
+  display: flex;
+}
+
+.dialog {
+  background: #3a3d5c;
+  border-radius: 20px;
+  padding: 36px 44px;
+  text-align: center;
+  box-shadow: 0 16px 50px rgba(0, 0, 0, 0.5);
+  animation: pop 0.35s cubic-bezier(0.18, 0.89, 0.32, 1.28);
+}
+
+@keyframes pop {
+  from { transform: scale(0.6); opacity: 0; }
+  to   { transform: scale(1);   opacity: 1; }
+}
+
+.dialog-icon {
+  font-size: 64px;
+  line-height: 1;
+  margin-bottom: 12px;
+}
+
+.dialog.lose .dialog-icon {
+  animation: shake 0.5s;
+}
+
+@keyframes shake {
+  0%, 100% { transform: translateX(0); }
+  20% { transform: translateX(-8px) rotate(-6deg); }
+  40% { transform: translateX(8px) rotate(6deg); }
+  60% { transform: translateX(-6px) rotate(-4deg); }
+  80% { transform: translateX(6px) rotate(4deg); }
+}
+
+.dialog-title {
+  font-size: 30px;
+  font-weight: 800;
+  letter-spacing: 3px;
+  margin-bottom: 24px;
+}
+
+.dialog.win .dialog-title { color: #ffd166; }
+.dialog.lose .dialog-title { color: #ef233c; }
+
+.dialog-btn {
+  border: none;
+  background: #4895ef;
+  color: #fff;
+  font-size: 16px;
+  font-weight: 700;
+  padding: 14px 28px;
+  border-radius: 12px;
+  cursor: pointer;
+  transition: transform 0.1s, background 0.15s;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.dialog-btn:hover { background: #5aa0f2; }
+.dialog-btn:active { transform: scale(0.95); }

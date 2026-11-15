@@ -2,7 +2,7 @@
 <html lang="zh-CN">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 <title>扫雷</title>
 <link rel="stylesheet" href="style.css">
 </head>
@@ -24,11 +24,28 @@
       <div class="counter" id="timer">⏱ 0</div>
     </div>
 
+    <div class="mode-bar">
+      <button class="mode-btn active" id="mode-btn">
+        <span class="mode-icon">⛏</span>
+        <span class="mode-text">翻开</span>
+      </button>
+    </div>
+
     <div class="board-wrap">
       <div class="board" id="board"></div>
     </div>
 
-    <p class="hint">左键翻开 · 右键插旗</p>
+    <p class="hint">点「翻开」可切换插旗 · 长按格子快速插旗 · 双击数字自动翻开周围</p>
+  </div>
+
+  <canvas id="fx-canvas"></canvas>
+
+  <div class="overlay" id="overlay">
+    <div class="dialog" id="dialog">
+      <div class="dialog-icon" id="dialog-icon">🎉</div>
+      <div class="dialog-title" id="dialog-title">你赢了</div>
+      <button class="dialog-btn" id="dialog-btn">确认开始新局</button>
+    </div>
   </div>
 
   <script src="script.js"></script>
