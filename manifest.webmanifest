@@ -1,0 +1,25 @@
+{
+  "name": "扫雷",
+  "short_name": "扫雷",
+  "description": "网页版扫雷游戏,支持触屏、逻辑提示、游戏记录",
+  "start_url": "./index.html",
+  "scope": "./",
+  "display": "standalone",
+  "orientation": "any",
+  "background_color": "#2b2d42",
+  "theme_color": "#2b2d42",
+  "icons": [
+    {
+      "src": "icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ]
+}
