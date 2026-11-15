@@ -37,9 +37,24 @@ h1 {
   gap: 16px;
 }
 
+.title-brand {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  flex-shrink: 0;
+}
+
 .title-text {
   letter-spacing: 4px;
   flex-shrink: 0;
+}
+
+.title-icon {
+  width: 34px;
+  height: 34px;
+  border-radius: 8px;
+  flex-shrink: 0;
+  vertical-align: middle;
 }
 
 /* 难度选择居中,两侧用 auto margin 推开 */
