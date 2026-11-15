@@ -8,7 +8,10 @@ const boardEl = document.getElementById('board');
 const mineCounterEl = document.getElementById('mine-counter');
 const timerEl = document.getElementById('timer');
 const resetBtn = document.getElementById('reset-btn');
-const modeBtn = document.getElementById('mode-btn');
+const revealBtn = document.getElementById('reveal-btn');
+const flagBtn = document.getElementById('flag-btn');
+const hintBtn = document.getElementById('hint-btn');
+const hintMsgEl = document.getElementById('hint-msg');
 const overlayEl = document.getElementById('overlay');
 const dialogEl = document.getElementById('dialog');
 const dialogIconEl = document.getElementById('dialog-icon');
@@ -35,12 +38,9 @@ function init() {
   gameOver = false;
   resetBtn.textContent = '🙂';
   timerEl.textContent = '⏱ 0';
-  flagMode = false;
-  if (modeBtn) {
-    modeBtn.classList.remove('flag-mode');
-    modeBtn.querySelector('.mode-icon').textContent = '⛏';
-    modeBtn.querySelector('.mode-text').textContent = '翻开';
-  }
+  setMode(false);
+  hintMsgEl.textContent = '';
+  hintMsgEl.className = 'hint-msg';
   updateMineCounter();
   overlayEl.classList.remove('show');
   stopFx();
@@ -165,6 +165,11 @@ function showResult(won) {
 }
 
 function render() {
+  // 任何重绘都清掉上一次的提示文案(角标随 DOM 重建自动消失)
+  if (hintMsgEl) {
+    hintMsgEl.textContent = '';
+    hintMsgEl.className = 'hint-msg';
+  }
   boardEl.style.gridTemplateColumns = `repeat(${config.cols}, 32px)`;
   boardEl.innerHTML = '';
   for (let r = 0; r < config.rows; r++) {
@@ -175,19 +180,23 @@ function render() {
       el.dataset.r = r;
       el.dataset.c = c;
 
+      const content = document.createElement('span');
+      content.className = 'cell-content';
+
       if (cell.revealed) {
         el.classList.add('revealed');
         if (cell.mine) {
           el.classList.add('mine');
-          el.textContent = '💣';
+          content.textContent = '💣';
         } else if (cell.count > 0) {
           el.classList.add('n' + cell.count);
-          el.textContent = cell.count;
+          content.textContent = cell.count;
         }
       } else if (cell.flagged) {
         el.classList.add('flag');
-        el.textContent = '🚩';
+        content.textContent = '🚩';
       }
+      el.appendChild(content);
       boardEl.appendChild(el);
     }
   }
@@ -289,12 +298,204 @@ boardEl.addEventListener('pointercancel', cancelPress);
 // 禁用长按弹出的系统菜单
 boardEl.addEventListener('contextmenu', (e) => e.preventDefault());
 
-modeBtn.addEventListener('click', () => {
-  flagMode = !flagMode;
-  modeBtn.classList.toggle('flag-mode', flagMode);
-  modeBtn.querySelector('.mode-icon').textContent = flagMode ? '🚩' : '⛏';
-  modeBtn.querySelector('.mode-text').textContent = flagMode ? '插旗' : '翻开';
-});
+function setMode(flag) {
+  flagMode = flag;
+  revealBtn.classList.toggle('active', !flag);
+  flagBtn.classList.toggle('active', flag);
+}
+
+revealBtn.addEventListener('click', () => setMode(false));
+flagBtn.addEventListener('click', () => setMode(true));
+
+// —————————————— 提示:逻辑推理求解器 ——————————————
+
+// 收集某已翻开数字格的约束:未知(未翻开未插旗)邻格 + 剩余雷数
+function cellConstraint(r, c) {
+  const cell = grid[r][c];
+  if (!cell.revealed || cell.count === 0) return null;
+  const unknown = [];
+  let flags = 0;
+  forEachNeighbor(r, c, (nr, nc) => {
+    const n = grid[nr][nc];
+    if (n.flagged) flags++;
+    else if (!n.revealed) unknown.push(nr + ',' + nc);
+  });
+  if (unknown.length === 0) return null;
+  return { cells: unknown, mines: cell.count - flags, r, c };
+}
+
+function allConstraints() {
+  const list = [];
+  for (let r = 0; r < config.rows; r++) {
+    for (let c = 0; c < config.cols; c++) {
+      const con = cellConstraint(r, c);
+      if (con) list.push(con);
+    }
+  }
+  return list;
+}
+
+function rc(key) {
+  const [r, c] = key.split(',').map(Number);
+  return { r, c };
+}
+
+// 返回一条提示:
+//   labeled: [{r,c,no}] 所有需要打角标的格子(含参照数字格和目标格)
+//   targets: [{r,c,no}] 被判定为安全/雷的目标格(额外脉冲高亮)
+//   type: 'safe'|'mine', reason: 文案(用 1号/2号 指代)
+function findHint() {
+  const cons = allConstraints();
+
+  // 按首次出现顺序给格子编号,从 1 开始
+  function makeLabeler() {
+    const map = new Map();      // "r,c" -> no
+    const list = [];            // [{r,c,no}]
+    return {
+      label(r, c) {
+        const key = r + ',' + c;
+        if (!map.has(key)) {
+          const no = list.length + 1;
+          map.set(key, no);
+          list.push({ r, c, no });
+        }
+        return map.get(key) + '号';
+      },
+      get labeled() { return list; },
+      nosOf(keys) {
+        return keys.map((k) => {
+          const { r, c } = rc(k);
+          this.label(r, c);
+          return map.get(k);
+        }).join('、') + '号';
+      },
+      targetsOf(keys) {
+        return keys.map((k) => {
+          const { r, c } = rc(k);
+          this.label(r, c);
+          return { r, c, no: map.get(k) };
+        });
+      },
+    };
+  }
+
+  // 规则1/2:单约束直接判定
+  for (const con of cons) {
+    if (con.mines === 0) {
+      const L = makeLabeler();
+      const ref = L.label(con.r, con.c);
+      const nos = L.nosOf(con.cells);
+      return {
+        type: 'safe', targets: L.targetsOf(con.cells), labeled: L.labeled,
+        reason: `${ref}格子的雷已全部插旗,所以旁边的 ${nos} 格子都安全。`,
+      };
+    }
+    if (con.mines === con.cells.length) {
+      const L = makeLabeler();
+      const ref = L.label(con.r, con.c);
+      const nos = L.nosOf(con.cells);
+      return {
+        type: 'mine', targets: L.targetsOf(con.cells), labeled: L.labeled,
+        reason: `${ref}格子周围只剩 ${con.cells.length} 个未知格,还差 ${con.mines} 个雷,所以 ${nos} 全是雷。`,
+      };
+    }
+  }
+
+  // 规则3:子集相减(你举的"1 挨着 1"的例子)
+  for (const a of cons) {
+    for (const b of cons) {
+      if (a === b) continue;
+      const setA = new Set(a.cells);
+      if (a.cells.length >= b.cells.length) continue;
+      if (!a.cells.every((k) => b.cells.includes(k))) continue;
+
+      const diff = b.cells.filter((k) => !setA.has(k));
+      const diffMines = b.mines - a.mines;
+
+      if (diffMines === 0) {
+        const L = makeLabeler();
+        const refA = L.label(a.r, a.c);
+        const refB = L.label(b.r, b.c);
+        const nos = L.nosOf(diff);
+        return {
+          type: 'safe', targets: L.targetsOf(diff), labeled: L.labeled,
+          reason: `${refA}的雷都藏在它和${refB}共享的格子里,所以${refB}多出来的 ${nos} 不含雷,安全。`,
+        };
+      }
+      if (diffMines === diff.length) {
+        const L = makeLabeler();
+        const refA = L.label(a.r, a.c);
+        const refB = L.label(b.r, b.c);
+        const nos = L.nosOf(diff);
+        return {
+          type: 'mine', targets: L.targetsOf(diff), labeled: L.labeled,
+          reason: `${refB}比${refA}多出的 ${nos} 正好多 ${diffMines} 个雷,所以它们全是雷。`,
+        };
+      }
+    }
+  }
+
+  return null;
+}
+
+// 清除所有提示角标和高亮
+function clearHints() {
+  document.querySelectorAll('.cell.hint-safe, .cell.hint-mine, .cell.hinted')
+    .forEach((el) => {
+      el.classList.remove('hint-safe', 'hint-mine', 'hinted');
+      const badge = el.querySelector('.cell-no');
+      if (badge) badge.remove();
+    });
+}
+
+function cellEl(r, c) {
+  return boardEl.querySelector(`.cell[data-r="${r}"][data-c="${c}"]`);
+}
+
+function addBadge(el, no) {
+  if (!el || el.querySelector('.cell-no')) return;
+  const badge = document.createElement('span');
+  badge.className = 'cell-no';
+  badge.textContent = no;
+  el.appendChild(badge);
+}
+
+function showHint() {
+  if (gameOver) return;
+  clearHints();
+
+  if (firstClick) {
+    hintMsgEl.className = 'hint-msg';
+    hintMsgEl.textContent = '先翻开第一个格子吧,这样才有线索可以分析。';
+    return;
+  }
+
+  const hint = findHint();
+  if (!hint) {
+    hintMsgEl.className = 'hint-msg warn';
+    hintMsgEl.textContent = '暂时推不出 100% 确定的格子,需要你自己判断或赌一把。';
+    return;
+  }
+
+  // 给本条提示涉及的所有格子打角标(从 1 开始)
+  for (const { r, c, no } of hint.labeled) {
+    const el = cellEl(r, c);
+    addBadge(el, no);
+    if (el) el.classList.add('hinted');
+  }
+  // 目标格额外加安全/雷脉冲高亮
+  const cls = hint.type === 'safe' ? 'hint-safe' : 'hint-mine';
+  for (const { r, c } of hint.targets) {
+    const el = cellEl(r, c);
+    if (el) el.classList.add(cls);
+  }
+
+  const tag = hint.type === 'safe' ? '🟢 安全' : '🔴 有雷';
+  hintMsgEl.className = 'hint-msg';
+  hintMsgEl.textContent = `${tag}:${hint.reason}`;
+}
+
+hintBtn.addEventListener('click', showHint);
 
 resetBtn.addEventListener('click', init);
 

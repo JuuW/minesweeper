@@ -25,17 +25,26 @@
     </div>
 
     <div class="mode-bar">
-      <button class="mode-btn active" id="mode-btn">
+      <button class="mode-btn active" id="reveal-btn" data-mode="reveal">
         <span class="mode-icon">⛏</span>
         <span class="mode-text">翻开</span>
       </button>
+      <button class="mode-btn" id="flag-btn" data-mode="flag">
+        <span class="mode-icon">🚩</span>
+        <span class="mode-text">插旗</span>
+      </button>
+    </div>
+
+    <div class="hint-bar">
+      <button class="hint-btn" id="hint-btn">💡 提示</button>
+      <p class="hint-msg" id="hint-msg"></p>
     </div>
 
     <div class="board-wrap">
       <div class="board" id="board"></div>
     </div>
 
-    <p class="hint">点「翻开」可切换插旗 · 长按格子快速插旗 · 双击数字自动翻开周围</p>
+    <p class="hint">选「翻开」或「插旗」模式 · 长按格子快速插旗 · 双击数字自动翻开周围</p>
   </div>
 
   <canvas id="fx-canvas"></canvas>
