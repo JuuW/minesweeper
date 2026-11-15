@@ -1,0 +1,161 @@
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body {
+  font-family: -apple-system, "Segoe UI", "PingFang SC", sans-serif;
+  background: #2b2d42;
+  color: #edf2f4;
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+}
+
+.game {
+  background: #3a3d5c;
+  border-radius: 16px;
+  padding: 24px;
+  box-shadow: 0 12px 40px rgba(0, 0, 0, 0.4);
+}
+
+h1 {
+  text-align: center;
+  font-size: 28px;
+  letter-spacing: 4px;
+  margin-bottom: 18px;
+}
+
+.toolbar {
+  display: flex;
+  justify-content: center;
+  margin-bottom: 16px;
+}
+
+.level-select {
+  display: flex;
+  gap: 8px;
+  background: #2b2d42;
+  padding: 4px;
+  border-radius: 10px;
+}
+
+.level-btn {
+  border: none;
+  background: transparent;
+  color: #8d99ae;
+  padding: 8px 16px;
+  border-radius: 8px;
+  cursor: pointer;
+  font-size: 14px;
+  transition: all 0.15s;
+}
+
+.level-btn:hover {
+  color: #edf2f4;
+}
+
+.level-btn.active {
+  background: #ef233c;
+  color: #fff;
+}
+
+.status-bar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 16px;
+  padding: 0 4px;
+}
+
+.counter {
+  background: #2b2d42;
+  padding: 8px 14px;
+  border-radius: 8px;
+  font-size: 18px;
+  font-variant-numeric: tabular-nums;
+  min-width: 72px;
+  text-align: center;
+}
+
+.reset-btn {
+  border: none;
+  background: #2b2d42;
+  font-size: 28px;
+  width: 52px;
+  height: 52px;
+  border-radius: 12px;
+  cursor: pointer;
+  transition: transform 0.1s;
+}
+
+.reset-btn:active {
+  transform: scale(0.92);
+}
+
+.board-wrap {
+  display: flex;
+  justify-content: center;
+}
+
+.board {
+  display: grid;
+  gap: 3px;
+  background: #2b2d42;
+  padding: 8px;
+  border-radius: 10px;
+}
+
+.cell {
+  width: 32px;
+  height: 32px;
+  border: none;
+  border-radius: 5px;
+  background: #5c6089;
+  color: #edf2f4;
+  font-size: 17px;
+  font-weight: 700;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  user-select: none;
+  transition: background 0.1s;
+}
+
+.cell:hover:not(.revealed) {
+  background: #6b70a0;
+}
+
+.cell.revealed {
+  background: #262840;
+  cursor: default;
+}
+
+.cell.mine {
+  background: #ef233c;
+}
+
+.cell.flag {
+  background: #4a4e78;
+}
+
+/* 数字颜色 */
+.cell.n1 { color: #4895ef; }
+.cell.n2 { color: #52b788; }
+.cell.n3 { color: #ff686b; }
+.cell.n4 { color: #c77dff; }
+.cell.n5 { color: #f4a261; }
+.cell.n6 { color: #2ec4b6; }
+.cell.n7 { color: #e0aaff; }
+.cell.n8 { color: #adb5bd; }
+
+.hint {
+  text-align: center;
+  margin-top: 16px;
+  font-size: 13px;
+  color: #8d99ae;
+}
