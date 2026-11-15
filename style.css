@@ -23,21 +23,164 @@ body {
 }
 
 h1 {
-  text-align: center;
   font-size: 28px;
-  letter-spacing: 4px;
   margin-bottom: 18px;
 }
 
-.toolbar {
+.title-bar {
   display: flex;
-  justify-content: center;
-  margin-bottom: 16px;
+  align-items: center;
+  gap: 16px;
+}
+
+.title-text {
+  letter-spacing: 4px;
+  flex-shrink: 0;
+}
+
+/* 难度选择居中,两侧用 auto margin 推开 */
+.title-bar .level-select {
+  margin: 0 auto;
+}
+
+.new-game-btn {
+  border: none;
+  background: #52b788;
+  color: #fff;
+  font-size: 15px;
+  font-weight: 700;
+  letter-spacing: 1px;
+  padding: 8px 18px;
+  border-radius: 10px;
+  cursor: pointer;
+  flex-shrink: 0;
+  transition: transform 0.1s, background 0.15s;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.new-game-btn:hover { background: #60c896; }
+.new-game-btn:active { transform: scale(0.94); }
+
+.help-btn {
+  border: none;
+  background: #4895ef;
+  color: #fff;
+  font-size: 16px;
+  font-weight: 800;
+  width: 34px;
+  height: 34px;
+  border-radius: 50%;
+  cursor: pointer;
+  flex-shrink: 0;
+  transition: transform 0.1s, background 0.15s;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.help-btn:hover { background: #5aa0f2; }
+.help-btn:active { transform: scale(0.9); }
+
+/* 左侧控制面板 + 右侧棋盘 */
+.layout {
+  display: flex;
+  align-items: flex-start;
+  gap: 24px;
+}
+
+.sidebar {
+  width: 200px;
+  flex-shrink: 0;
+}
+
+/* 右侧游戏记录面板 */
+.records {
+  width: 230px;
+  flex-shrink: 0;
+  background: #2b2d42;
+  border-radius: 12px;
+  padding: 14px;
+}
+
+.records-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 10px;
+}
+
+.records-head h2 {
+  font-size: 16px;
+  font-weight: 700;
+  letter-spacing: 1px;
+}
+
+.clear-records-btn {
+  border: none;
+  background: #3a3d5c;
+  color: #8d99ae;
+  font-size: 12px;
+  padding: 5px 12px;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: background 0.15s, color 0.15s;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.clear-records-btn:hover { background: #ef233c; color: #fff; }
+
+.records-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 13px;
+  display: block;
+  max-height: 420px;
+  overflow-y: auto;
+}
+
+.records-table thead,
+.records-table tbody {
+  display: table;
+  width: 100%;
+  table-layout: fixed;
+}
+
+.records-table thead {
+  position: sticky;
+  top: 0;
+  background: #2b2d42;
+  z-index: 1;
+}
+
+.records-table th {
+  color: #8d99ae;
+  font-weight: 600;
+  padding: 6px 4px;
+  border-bottom: 1px solid #3a3d5c;
+  text-align: center;
+}
+
+.records-table td {
+  padding: 6px 4px;
+  text-align: center;
+  border-bottom: 1px solid #333653;
+  font-variant-numeric: tabular-nums;
+}
+
+.records-table tr:last-child td {
+  border-bottom: none;
+}
+
+.records-table .win { color: #52b788; font-weight: 700; }
+.records-table .lose { color: #ef233c; font-weight: 700; }
+
+.records-empty td {
+  color: #6b6f8f;
+  padding: 18px 4px;
+  font-style: italic;
 }
 
 .level-select {
   display: flex;
-  gap: 8px;
+  gap: 6px;
   background: #2b2d42;
   padding: 4px;
   border-radius: 10px;
@@ -51,7 +194,10 @@ h1 {
   border-radius: 8px;
   cursor: pointer;
   font-size: 14px;
+  font-weight: 400;
+  letter-spacing: normal;
   transition: all 0.15s;
+  -webkit-tap-highlight-color: transparent;
 }
 
 .level-btn:hover {
@@ -73,20 +219,20 @@ h1 {
 
 .counter {
   background: #2b2d42;
-  padding: 8px 14px;
+  padding: 8px 10px;
   border-radius: 8px;
-  font-size: 18px;
+  font-size: 16px;
   font-variant-numeric: tabular-nums;
-  min-width: 72px;
+  min-width: 56px;
   text-align: center;
 }
 
 .reset-btn {
   border: none;
   background: #2b2d42;
-  font-size: 28px;
-  width: 52px;
-  height: 52px;
+  font-size: 24px;
+  width: 46px;
+  height: 46px;
   border-radius: 12px;
   cursor: pointer;
   transition: transform 0.1s;
@@ -98,7 +244,7 @@ h1 {
 
 .board-wrap {
   display: flex;
-  justify-content: center;
+  justify-content: flex-start;
 }
 
 .mode-bar {
@@ -111,16 +257,15 @@ h1 {
 .mode-btn {
   border: none;
   flex: 1;
-  max-width: 150px;
-  padding: 14px;
+  padding: 12px 6px;
   border-radius: 12px;
-  font-size: 18px;
+  font-size: 16px;
   font-weight: 700;
   cursor: pointer;
   display: flex;
   align-items: center;
   justify-content: center;
-  gap: 8px;
+  gap: 6px;
   transition: all 0.15s;
   -webkit-tap-highlight-color: transparent;
   /* 未选中:灰色 */
@@ -154,7 +299,7 @@ h1 {
 .hint-bar {
   display: flex;
   flex-direction: column;
-  align-items: center;
+  align-items: stretch;
   gap: 8px;
   margin-bottom: 14px;
 }
@@ -178,9 +323,8 @@ h1 {
 .hint-msg {
   font-size: 13px;
   color: #a8dadc;
-  text-align: center;
+  text-align: left;
   min-height: 18px;
-  max-width: 420px;
   line-height: 1.5;
 }
 
@@ -290,10 +434,11 @@ h1 {
 .cell.n8 { color: #adb5bd; }
 
 .hint {
-  text-align: center;
+  text-align: left;
   margin-top: 16px;
-  font-size: 13px;
+  font-size: 12px;
   color: #8d99ae;
+  line-height: 1.6;
 }
 
 /* 特效画布:覆盖全屏,不拦截点击 */
@@ -380,3 +525,45 @@ h1 {
 
 .dialog-btn:hover { background: #5aa0f2; }
 .dialog-btn:active { transform: scale(0.95); }
+
+/* 玩法说明弹窗 */
+.help-dialog {
+  text-align: left;
+  max-width: 360px;
+}
+
+.help-dialog .dialog-title {
+  text-align: center;
+  font-size: 24px;
+  color: #ffd166;
+  margin-bottom: 18px;
+}
+
+.help-list {
+  list-style: none;
+  margin: 0 0 22px;
+  padding: 0;
+}
+
+.help-list li {
+  position: relative;
+  padding: 8px 0 8px 22px;
+  font-size: 14px;
+  line-height: 1.5;
+  color: #edf2f4;
+  border-bottom: 1px solid rgba(141, 153, 174, 0.2);
+}
+
+.help-list li:last-child { border-bottom: none; }
+
+.help-list li::before {
+  content: '·';
+  position: absolute;
+  left: 6px;
+  color: #4895ef;
+  font-weight: 800;
+}
+
+.help-list b { color: #ffd166; }
+
+.help-dialog .dialog-btn { width: 100%; }

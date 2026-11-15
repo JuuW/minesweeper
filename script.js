@@ -1,13 +1,17 @@
 const LEVELS = {
-  easy:   { rows: 9,  cols: 9,  mines: 10 },
-  medium: { rows: 16, cols: 16, mines: 40 },
-  hard:   { rows: 16, cols: 30, mines: 99 },
+  easy:   { rows: 9,  cols: 9,  mines: 10, name: '初级' },
+  medium: { rows: 16, cols: 16, mines: 40, name: '中级' },
+  hard:   { rows: 16, cols: 30, mines: 99, name: '高级' },
 };
 
 const boardEl = document.getElementById('board');
 const mineCounterEl = document.getElementById('mine-counter');
 const timerEl = document.getElementById('timer');
 const resetBtn = document.getElementById('reset-btn');
+const newGameBtn = document.getElementById('new-game-btn');
+const helpBtn = document.getElementById('help-btn');
+const helpOverlay = document.getElementById('help-overlay');
+const helpCloseBtn = document.getElementById('help-close-btn');
 const revealBtn = document.getElementById('reveal-btn');
 const flagBtn = document.getElementById('flag-btn');
 const hintBtn = document.getElementById('hint-btn');
@@ -19,6 +23,8 @@ const dialogTitleEl = document.getElementById('dialog-title');
 const dialogBtn = document.getElementById('dialog-btn');
 const fxCanvas = document.getElementById('fx-canvas');
 const fxCtx = fxCanvas.getContext('2d');
+const recordsBody = document.getElementById('records-body');
+const clearRecordsBtn = document.getElementById('clear-records-btn');
 
 let config = LEVELS.easy;
 let grid = [];           // 每格: {mine, revealed, flagged, count}
@@ -144,6 +150,7 @@ function endGame(won) {
       if (grid[r][c].mine) grid[r][c].revealed = true;
     }
   }
+  addRecord(won);
   render();
   showResult(won);
 }
@@ -499,7 +506,20 @@ hintBtn.addEventListener('click', showHint);
 
 resetBtn.addEventListener('click', init);
 
-dialogBtn.addEventListener('click', init);
+newGameBtn.addEventListener('click', init);
+
+// 玩法说明弹窗
+helpBtn.addEventListener('click', () => helpOverlay.classList.add('show'));
+helpCloseBtn.addEventListener('click', () => helpOverlay.classList.remove('show'));
+helpOverlay.addEventListener('click', (e) => {
+  if (e.target === helpOverlay) helpOverlay.classList.remove('show');
+});
+
+// 「确定」:关闭结算弹窗和特效,但保留棋盘以便复盘(不重开)
+dialogBtn.addEventListener('click', () => {
+  overlayEl.classList.remove('show');
+  stopFx();
+});
 
 document.querySelectorAll('.level-btn').forEach((btn) => {
   btn.addEventListener('click', () => {
@@ -509,6 +529,58 @@ document.querySelectorAll('.level-btn').forEach((btn) => {
     init();
   });
 });
+
+// —————————————— 游戏记录(localStorage 持久化)——————————————
+const RECORDS_KEY = 'minesweeper-records';
+
+function loadRecords() {
+  try {
+    return JSON.parse(localStorage.getItem(RECORDS_KEY)) || [];
+  } catch {
+    return [];
+  }
+}
+
+function saveRecords(list) {
+  try {
+    localStorage.setItem(RECORDS_KEY, JSON.stringify(list));
+  } catch { /* 隐私模式等写入失败,忽略 */ }
+}
+
+function fmtTime(sec) {
+  const m = Math.floor(sec / 60);
+  const s = sec % 60;
+  return m > 0 ? `${m}分${s}秒` : `${s}秒`;
+}
+
+function addRecord(won) {
+  const list = loadRecords();
+  list.push({ level: config.name, won, time: timer });
+  saveRecords(list);
+  renderRecords();
+}
+
+function renderRecords() {
+  const list = loadRecords();
+  if (list.length === 0) {
+    recordsBody.innerHTML = '<tr class="records-empty"><td colspan="4">还没有记录</td></tr>';
+    return;
+  }
+  // 最新的排在最上面
+  recordsBody.innerHTML = list.map((r, i) => {
+    const no = i + 1;
+    const cls = r.won ? 'win' : 'lose';
+    const txt = r.won ? '成功' : '失败';
+    return `<tr><td>${no}</td><td>${r.level}</td><td class="${cls}">${txt}</td><td>${fmtTime(r.time)}</td></tr>`;
+  }).reverse().join('');
+}
+
+clearRecordsBtn.addEventListener('click', () => {
+  saveRecords([]);
+  renderRecords();
+});
+
+renderRecords();
 
 // —————————————— 粒子特效 ——————————————
 let particles = [];

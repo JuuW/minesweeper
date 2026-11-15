@@ -8,43 +8,66 @@
 </head>
 <body>
   <div class="game">
-    <h1>扫雷</h1>
-
-    <div class="toolbar">
+    <h1 class="title-bar">
+      <span class="title-text">扫雷</span>
       <div class="level-select">
         <button class="level-btn active" data-level="easy">初级</button>
         <button class="level-btn" data-level="medium">中级</button>
         <button class="level-btn" data-level="hard">高级</button>
       </div>
-    </div>
+      <button class="new-game-btn" id="new-game-btn">开局</button>
+      <button class="help-btn" id="help-btn" aria-label="玩法说明">?</button>
+    </h1>
 
-    <div class="status-bar">
-      <div class="counter" id="mine-counter">💣 0</div>
-      <button class="reset-btn" id="reset-btn">🙂</button>
-      <div class="counter" id="timer">⏱ 0</div>
-    </div>
+    <div class="layout">
+      <aside class="sidebar">
+        <div class="status-bar">
+          <div class="counter" id="mine-counter">💣 0</div>
+          <button class="reset-btn" id="reset-btn">🙂</button>
+          <div class="counter" id="timer">⏱ 0</div>
+        </div>
 
-    <div class="mode-bar">
-      <button class="mode-btn active" id="reveal-btn" data-mode="reveal">
-        <span class="mode-icon">⛏</span>
-        <span class="mode-text">翻开</span>
-      </button>
-      <button class="mode-btn" id="flag-btn" data-mode="flag">
-        <span class="mode-icon">🚩</span>
-        <span class="mode-text">插旗</span>
-      </button>
-    </div>
+        <div class="mode-bar">
+          <button class="mode-btn active" id="reveal-btn" data-mode="reveal">
+            <span class="mode-icon">⛏</span>
+            <span class="mode-text">翻开</span>
+          </button>
+          <button class="mode-btn" id="flag-btn" data-mode="flag">
+            <span class="mode-icon">🚩</span>
+            <span class="mode-text">插旗</span>
+          </button>
+        </div>
 
-    <div class="hint-bar">
-      <button class="hint-btn" id="hint-btn">💡 提示</button>
-      <p class="hint-msg" id="hint-msg"></p>
-    </div>
+        <div class="hint-bar">
+          <button class="hint-btn" id="hint-btn">💡 提示</button>
+          <p class="hint-msg" id="hint-msg"></p>
+        </div>
+      </aside>
 
-    <div class="board-wrap">
-      <div class="board" id="board"></div>
-    </div>
+      <main class="board-wrap">
+        <div class="board" id="board"></div>
+      </main>
 
-    <p class="hint">选「翻开」或「插旗」模式 · 长按格子快速插旗 · 双击数字自动翻开周围</p>
+      <section class="records">
+        <div class="records-head">
+          <h2>游戏记录</h2>
+          <button class="clear-records-btn" id="clear-records-btn">清空</button>
+        </div>
+        <table class="records-table">
+          <thead>
+            <tr>
+              <th>序号</th>
+              <th>等级</th>
+              <th>结果</th>
+              <th>耗时</th>
+            </tr>
+          </thead>
+          <tbody id="records-body">
+            <tr class="records-empty"><td colspan="4">还没有记录</td></tr>
+          </tbody>
+        </table>
+      </section>
+    </div>
   </div>
 
   <canvas id="fx-canvas"></canvas>
@@ -53,7 +76,20 @@
     <div class="dialog" id="dialog">
       <div class="dialog-icon" id="dialog-icon">🎉</div>
       <div class="dialog-title" id="dialog-title">你赢了</div>
-      <button class="dialog-btn" id="dialog-btn">确认开始新局</button>
+      <button class="dialog-btn" id="dialog-btn">确定</button>
+    </div>
+  </div>
+
+  <div class="overlay" id="help-overlay">
+    <div class="dialog help-dialog">
+      <div class="dialog-title">玩法说明</div>
+      <ul class="help-list">
+        <li>选「<b>翻开</b>」或「<b>插旗</b>」模式后点击格子</li>
+        <li><b>长按</b>格子可快速插旗</li>
+        <li><b>双击</b>已翻开的数字,若周围旗数够了,自动翻开其余格子</li>
+        <li>点「<b>💡 提示</b>」会用逻辑推理标出一个确定安全或有雷的格子</li>
+      </ul>
+      <button class="dialog-btn" id="help-close-btn">知道了</button>
     </div>
   </div>
 
