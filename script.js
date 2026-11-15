@@ -177,7 +177,7 @@ function render() {
     hintMsgEl.textContent = '';
     hintMsgEl.className = 'hint-msg';
   }
-  boardEl.style.gridTemplateColumns = `repeat(${config.cols}, 32px)`;
+  boardEl.style.gridTemplateColumns = `repeat(${config.cols}, var(--cell-size, 32px))`;
   boardEl.innerHTML = '';
   for (let r = 0; r < config.rows; r++) {
     for (let c = 0; c < config.cols; c++) {
